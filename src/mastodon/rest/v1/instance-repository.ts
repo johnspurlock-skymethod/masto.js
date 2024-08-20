@@ -1,5 +1,10 @@
 import { type HttpMetaParams } from "../../../interfaces";
-import { type Activity, type Instance } from "../../entities/v1";
+import {
+  type Activity,
+  type DomainBlock,
+  type ExtendedDescription,
+  type Instance,
+} from "../../entities/v1";
 import { type Paginator } from "../../paginator";
 
 export interface InstanceRepository {
@@ -36,5 +41,21 @@ export interface InstanceRepository {
   translationLanguages: {
     /** https://github.com/mastodon/mastodon/pull/24037 */
     list(meta?: HttpMetaParams): Promise<Record<string, string[]>>;
+  };
+
+  domainBlocks: {
+    /**
+     * Obtain a list of domains that have been blocked.
+     * @see https://docs.joinmastodon.org/methods/instance/#domain_blocks
+     */
+    fetch(meta?: HttpMetaParams): Promise<DomainBlock[]>;
+  };
+
+  extendedDescription: {
+    /**
+     * Obtain an extended description of this server
+     * @see https://docs.joinmastodon.org/methods/instance/#extended_description
+     */
+    fetch(meta?: HttpMetaParams): Promise<ExtendedDescription>;
   };
 }

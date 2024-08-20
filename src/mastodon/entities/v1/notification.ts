@@ -1,4 +1,6 @@
 import { type Account } from "./account";
+import { type AccountWarning } from "./account-warning";
+import { type RelationshipSeveranceEvent } from "./relationship-serverance-event";
 import { type Report } from "./report";
 import { type Status } from "./status";
 
@@ -83,6 +85,22 @@ export type AdminReportNotification =
   BaseNotificationWithReport<"admin.report">;
 
 /**
+ * Some of your follow relationships have been severed as a result of a moderation or block event
+ */
+export type ServeredRelationshipsNotification =
+  BaseNotification<"severed_relationships"> & {
+    relationshipServeranceEvent: RelationshipSeveranceEvent;
+  };
+
+/**
+ * A moderator has taken action against your account or has sent you a warning
+ */
+export type ModerationWarningNotification =
+  BaseNotification<"moderation_warning"> & {
+    moderationWarning: AccountWarning;
+  };
+
+/**
  * Represents a notification of an event relevant to the user.
  * @see https://docs.joinmastodon.org/entities/notification
  */
@@ -96,6 +114,8 @@ export type Notification =
   | PollNotification
   | UpdateNotification
   | AdminSignUpNotification
-  | AdminReportNotification;
+  | AdminReportNotification
+  | ServeredRelationshipsNotification
+  | ModerationWarningNotification;
 
 export type NotificationType = Notification["type"];

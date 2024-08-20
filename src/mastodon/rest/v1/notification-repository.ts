@@ -1,5 +1,10 @@
 import { type HttpMetaParams } from "../../../interfaces";
-import { type Notification, type NotificationType } from "../../entities/v1";
+import {
+  type Notification,
+  type NotificationPolicy,
+  type NotificationRequest,
+  type NotificationType,
+} from "../../entities/v1";
 import { type Paginator } from "../../paginator";
 import { type DefaultPaginationParams } from "../../repository";
 
@@ -10,6 +15,17 @@ export interface ListNotificationsParams extends DefaultPaginationParams {
   readonly accountId?: string | null;
   /** Array of notifications to exclude (Allowed values: "follow", "favourite", "reblog", "mention") */
   readonly excludeTypes?: readonly NotificationType[] | null;
+}
+
+export interface UpdateNotificationPolicyParams {
+  /** Whether to filter notifications from accounts the user is not following. */
+  readonly filterNotFolliwng?: boolean;
+  /** Whether to filter notifications from accounts that are not following the user. */
+  readonly filterNotFollowers?: boolean;
+  /** Whether to filter notifications from accounts created in the past 30 days. */
+  readonly filterNewAccounts?: boolean;
+  /** Whether to filter notifications from private mentions. Replies to private mentions initiated by the user, as well as accounts the user follows, are never filtered. */
+  readonly filterPrivateMentions?: boolean;
 }
 
 export interface NotificationRepository {
@@ -48,4 +64,43 @@ export interface NotificationRepository {
    * @see https://docs.joinmastodon.org/methods/notifications/
    */
   clear(meta?: HttpMetaParams): Promise<void>;
+
+  policy: {
+    /**
+     * Notifications filtering policy for the user.
+     */
+    fetch(meta?: HttpMetaParams): Promise<NotificationPolicy>;
+
+    /**
+     * Update the user’s notifications filtering policy.
+     */
+    update(
+      params: UpdateNotificationPolicyParams,
+      meta?: HttpMetaParams<"json">,
+    ): Promise<NotificationPolicy>;
+  };
+
+  requests: {
+    fetch(
+      params: DefaultPaginationParams,
+      meta?: HttpMetaParams<"json">,
+    ): Paginator<NotificationRequest[], DefaultPaginationParams>;
+
+    $select(id: string): {
+      /**
+       * View information about a notification request with a given ID.
+       */
+      fetch(meta?: HttpMetaParams): Promise<NotificationRequest>;
+
+      /**
+       * Accept a notification request, which merges the filtered notifications from that user back into the main notification and accepts any future notification from them.
+       */
+      accept(meta?: HttpMetaParams): Promise<void>;
+
+      /**
+       * Dismiss a notification request, which hides it and prevent it from contributing to the pending notification requests count.
+       */
+      dismiss(meta?: HttpMetaParams): Promise<void>;
+    };
+  };
 }
